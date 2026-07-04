@@ -1,0 +1,21 @@
+### 회원가입
+POST http://localhost:8080/api/users/signup
+Content-Type: application/json
+
+{
+  "username": "juwon",
+  "password": "1234"
+}
+
+### 로그인
+POST http://localhost:8080/api/users/login
+Content-Type: application/json
+
+{
+  "username": "juwon",
+  "password": "1234"
+}
+
+### 내 정보 조회
+GET http://localhost:8080/api/users/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJqdXdvbiIsImlhdCI6MTc4MzE2MTg2NCwiZXhwIjoxNzgzMTY1NDY0fQ.F8HrafNc6WXa6aniUfxDKIIolHI9alG0bkrkCQg0cYQ
