@@ -63,4 +63,10 @@ public class Project {
     public LocalDateTime getUpdatedAt() {
         return getUpdatedAt();
     }
+
+//    외부에서 Project필드 접근 메서드
+    public void update(String title,String description) {
+        this.title = title;
+        this.description = description;
+    }
 }

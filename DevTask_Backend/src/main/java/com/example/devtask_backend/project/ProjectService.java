@@ -64,4 +64,39 @@ public class ProjectService {
                 project.getDescription(),
                 project.getUser().getUsername());
     }
+
+//    프로젝트 수정
+    public ProjectResponse updateProject(Long userId, Long projectId, ProjectRequest request) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("프로젝트를 찾을 수 없습니다."));
+
+        if (!Objects.equals(project.getUser().getId(), userId)) {
+            throw new IllegalArgumentException("권한이 없습니다.");
+        }
+
+        String title = request.getTitle();
+        String description = request.getDescription();
+
+        project.update(title, description);
+
+        Project projectSave = projectRepository.save(project);
+
+        return new ProjectResponse(
+                projectSave.getId(),
+                projectSave.getTitle(),
+                projectSave.getDescription(),
+                projectSave.getUser().getUsername());
+    }
+
+//    프로젝트 삭제
+    public void deleteProject(Long userId, Long projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("프로젝트를 찾을 수 없습니다."));
+
+        if (!Objects.equals(project.getUser().getId(), userId)) {
+            throw new IllegalArgumentException("권한이 없습니다.");
+        }
+
+        projectRepository.delete(project);
+    }
 }

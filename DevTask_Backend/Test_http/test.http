@@ -1,3 +1,5 @@
+@token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJqdXdvbiIsImlhdCI6MTc4MzIyNTUzMSwiZXhwIjoxNzgzMjI5MTMxfQ.Ew8UCBk8oaosFC0kZPCrr28_ve24N4csCDW6SrBgoKY
+
 ### 회원가입
 POST http://localhost:8080/api/users/signup
 Content-Type: application/json
@@ -18,11 +20,11 @@ Content-Type: application/json
 
 ### 내 정보 조회
 GET http://localhost:8080/api/users/me
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJqdXdvbiIsImlhdCI6MTc4MzE2MTg2NCwiZXhwIjoxNzgzMTY1NDY0fQ.F8HrafNc6WXa6aniUfxDKIIolHI9alG0bkrkCQg0cYQ
+Authorization: Bearer {{token}}
 
 ### 프로젝트 생성
 POST http://localhost:8080/api/projects
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJqdXdvbiIsImlhdCI6MTc4MzIyMTQxNywiZXhwIjoxNzgzMjI1MDE3fQ.uWsyjBMK-eWJa0Xp4IHTyr0AjLLcaJvvWFwEWMIsT8s
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
@@ -32,8 +34,22 @@ Content-Type: application/json
 
 ### 내 프로젝트 목록 조회
 GET http://localhost:8080/api/projects
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJqdXdvbiIsImlhdCI6MTc4MzE3MTIxMiwiZXhwIjoxNzgzMTc0ODEyfQ.zHKUryRYcWvcwLq-109fTPheXXrRKF6x4Z_39I6P6As
+Authorization: Bearer {{token}}
 
 ### 프로젝트 단건 조회
 GET http://localhost:8080/api/projects/4
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwidXNlcm5hbWUiOiJqdXdvbiIsImlhdCI6MTc4MzIyMTQxNywiZXhwIjoxNzgzMjI1MDE3fQ.uWsyjBMK-eWJa0Xp4IHTyr0AjLLcaJvvWFwEWMIsT8s
+Authorization: Bearer {{token}}
+
+### 프로젝트 수정
+PUT http://localhost:8080/api/projects/2
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "DevTask 수정",
+  "description": "프로젝트 설명 수정"
+}
+
+### 프로젝트 삭제
+DELETE http://localhost:8080/api/projects/1
+Authorization: Bearer {{token}}
