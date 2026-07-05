@@ -35,7 +35,7 @@ public class ProjectController {
 
 //    프로젝트 조회 요청
     @GetMapping
-    public List<ProjectResponse> getMyProject(
+    public List<ProjectResponse> getMyProjects(
             @RequestHeader("Authorization") String authorization
     ) {
         String token = authorization.replace("Bearer ","");
@@ -47,5 +47,22 @@ public class ProjectController {
         Long userId = jwtUtil.getUserId(token);
 
         return projectService.getMyProjects(userId);
+    }
+
+//    프로젝트 단건 조회
+    @GetMapping("/{projectId}")
+    public ProjectResponse getProject(
+            @RequestHeader("Authorization") String authorization,
+            @PathVariable Long projectId
+    ) {
+        String token = authorization.replace("Bearer ","");
+
+        if (!jwtUtil.validateToken(token)) {
+            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
+        }
+
+        Long userId = jwtUtil.getUserId(token);
+
+        return projectService.getProject(userId, projectId);
     }
 }

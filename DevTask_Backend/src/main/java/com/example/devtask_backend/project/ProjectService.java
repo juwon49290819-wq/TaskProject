@@ -5,6 +5,7 @@ import com.example.devtask_backend.user.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ProjectService {
@@ -46,5 +47,21 @@ public class ProjectService {
                         project.getUser().getUsername()
                 ))
                 .toList();
+    }
+
+//    프로젝트 단건 조회
+    public ProjectResponse getProject(Long userId, Long projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("프로젝트를 찾을 수 없습니다."));
+
+        if (!Objects.equals(project.getUser().getId(), userId)) {
+            throw new IllegalArgumentException("권한이 없습니다.");
+        }
+
+        return new ProjectResponse(
+                project.getId(),
+                project.getTitle(),
+                project.getDescription(),
+                project.getUser().getUsername());
     }
 }
