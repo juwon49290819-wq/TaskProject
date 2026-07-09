@@ -1,5 +1,7 @@
 package com.example.devtask_backend.project;
 
+import com.example.devtask_backend.common.ForbiddenException;
+import com.example.devtask_backend.common.NotFoundException;
 import com.example.devtask_backend.user.User;
 import com.example.devtask_backend.user.UserRepository;
 import org.springframework.stereotype.Service;
@@ -20,7 +22,7 @@ public class ProjectService {
 //    프로젝트 생성
     public ProjectResponse createProject(Long userId, ProjectRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));
 
         String title = request.getTitle();
         String description = request.getDescription();
@@ -52,10 +54,10 @@ public class ProjectService {
 //    프로젝트 단건 조회
     public ProjectResponse getProject(Long userId, Long projectId) {
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("프로젝트를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException("프로젝트를 찾을 수 없습니다."));
 
         if (!Objects.equals(project.getUser().getId(), userId)) {
-            throw new IllegalArgumentException("권한이 없습니다.");
+            throw new ForbiddenException("권한이 없습니다.");
         }
 
         return new ProjectResponse(
@@ -68,10 +70,10 @@ public class ProjectService {
 //    프로젝트 수정
     public ProjectResponse updateProject(Long userId, Long projectId, ProjectRequest request) {
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("프로젝트를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException("프로젝트를 찾을 수 없습니다."));
 
         if (!Objects.equals(project.getUser().getId(), userId)) {
-            throw new IllegalArgumentException("권한이 없습니다.");
+            throw new ForbiddenException("권한이 없습니다.");
         }
 
         String title = request.getTitle();
@@ -91,10 +93,10 @@ public class ProjectService {
 //    프로젝트 삭제
     public void deleteProject(Long userId, Long projectId) {
         Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("프로젝트를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException("프로젝트를 찾을 수 없습니다."));
 
         if (!Objects.equals(project.getUser().getId(), userId)) {
-            throw new IllegalArgumentException("권한이 없습니다.");
+            throw new ForbiddenException("권한이 없습니다.");
         }
 
         projectRepository.delete(project);

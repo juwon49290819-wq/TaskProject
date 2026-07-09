@@ -1,5 +1,6 @@
 package com.example.devtask_backend.user;
 
+import com.example.devtask_backend.common.NotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,7 +29,7 @@ public class UserService {
 
     public UserResponse getMe(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));
 
         return new UserResponse(user.getId(), user.getUsername());
     }

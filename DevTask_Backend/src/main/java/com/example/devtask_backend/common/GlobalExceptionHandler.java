@@ -11,4 +11,16 @@ public class GlobalExceptionHandler {
     public ErrorResponse handleIllegalArgumentException(IllegalArgumentException e) {
         return new ErrorResponse(e.getMessage());
     }
+
+    @ExceptionHandler(NotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handlerNotFoundException(NotFoundException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorResponse handlerForbiddenException(ForbiddenException e) {
+        return new ErrorResponse(e.getMessage());
+    }
 }
