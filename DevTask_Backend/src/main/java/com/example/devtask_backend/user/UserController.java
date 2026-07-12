@@ -2,6 +2,7 @@ package com.example.devtask_backend.user;
 
 import com.example.devtask_backend.auth.AuthService;
 import com.example.devtask_backend.auth.JwtUtil;
+import com.example.devtask_backend.common.UnauthorizedException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,14 +30,8 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public UserResponse me(@RequestHeader("Authorization") String authorizationHeader) {
-        String token = authorizationHeader.replace("Bearer ", "");
-
-        if (!jwtUtil.validateToken(token)) {
-            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
-        }
-
-        Long userId = jwtUtil.getUserId(token);
+    public UserResponse me(@RequestHeader("Authorization") String authorization) {
+        Long userId = authService.getUserIdFromAuthorization(authorization);
 
         return userService.getMe(userId);
     }

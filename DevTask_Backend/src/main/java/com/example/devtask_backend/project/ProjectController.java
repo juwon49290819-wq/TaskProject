@@ -1,6 +1,8 @@
 package com.example.devtask_backend.project;
 
+import com.example.devtask_backend.auth.AuthService;
 import com.example.devtask_backend.auth.JwtUtil;
+import com.example.devtask_backend.common.UnauthorizedException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -9,26 +11,20 @@ import java.util.List;
 @RequestMapping("/api/projects")
 public class ProjectController {
     private final ProjectService projectService;
-    private final JwtUtil jwtUtil;
+    private final AuthService authService;
 
-    public ProjectController(ProjectService projectService, JwtUtil jwtUtil) {
+    public ProjectController(ProjectService projectService,AuthService authService) {
         this.projectService = projectService;
-        this.jwtUtil = jwtUtil;
+        this.authService = authService;
     }
 
 //    프로젝트 생성
     @PostMapping
     public ProjectResponse createProject(
-            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestHeader("Authorization") String authorization,
             @RequestBody ProjectRequest request
     ) {
-        String token = authorizationHeader.replace("Bearer ", "");
-
-        if (!jwtUtil.validateToken(token)) {
-            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
-        }
-
-        Long userId = jwtUtil.getUserId(token);
+        Long userId = authService.getUserIdFromAuthorization(authorization);
 
         return projectService.createProject(userId, request);
     }
@@ -38,13 +34,7 @@ public class ProjectController {
     public List<ProjectResponse> getMyProjects(
             @RequestHeader("Authorization") String authorization
     ) {
-        String token = authorization.replace("Bearer ", "");
-
-        if (!jwtUtil.validateToken(token)) {
-            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
-        }
-
-        Long userId = jwtUtil.getUserId(token);
+        Long userId = authService.getUserIdFromAuthorization(authorization);
 
         return projectService.getMyProjects(userId);
     }
@@ -55,13 +45,7 @@ public class ProjectController {
             @RequestHeader("Authorization") String authorization,
             @PathVariable Long projectId
     ) {
-        String token = authorization.replace("Bearer ", "");
-
-        if (!jwtUtil.validateToken(token)) {
-            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
-        }
-
-        Long userId = jwtUtil.getUserId(token);
+        Long userId = authService.getUserIdFromAuthorization(authorization);
 
         return projectService.getProject(userId, projectId);
     }
@@ -73,13 +57,7 @@ public class ProjectController {
             @PathVariable Long projectId,
             @RequestBody ProjectRequest request
     ) {
-        String token = authorization.replace("Bearer ", "");
-
-        if (!jwtUtil.validateToken(token)) {
-            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
-        }
-
-        Long userId = jwtUtil.getUserId(token);
+        Long userId = authService.getUserIdFromAuthorization(authorization);
 
         return projectService.updateProject(userId, projectId, request);
     }
@@ -90,13 +68,7 @@ public class ProjectController {
             @RequestHeader("Authorization") String authorization,
             @PathVariable Long projectId
     ) {
-        String token = authorization.replace("Bearer ", "");
-
-        if (!jwtUtil.validateToken(token)) {
-            throw new IllegalArgumentException("토큰이 유효하지 않습니다.");
-        }
-
-        Long userId = jwtUtil.getUserId(token);
+        Long userId = authService.getUserIdFromAuthorization(authorization);
 
         projectService.deleteProject(userId, projectId);
 

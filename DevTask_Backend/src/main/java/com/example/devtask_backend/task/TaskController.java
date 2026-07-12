@@ -1,6 +1,6 @@
 package com.example.devtask_backend.task;
 
-import com.example.devtask_backend.auth.JwtUtil;
+import com.example.devtask_backend.auth.AuthService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -8,14 +8,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/projects/{projectId}/tasks")
 public class TaskController {
-    private final JwtUtil jwtUtil;
     private final TaskService taskService;
-    private final TaskRepository taskRepository;
+    private final AuthService authService;
 
-    public TaskController(JwtUtil jwtUtil, TaskService taskService, TaskRepository taskRepository) {
-        this.jwtUtil = jwtUtil;
+    public TaskController(TaskService taskService,AuthService authService) {
         this.taskService = taskService;
-        this.taskRepository = taskRepository;
+        this.authService = authService;
     }
 
     @PostMapping
@@ -23,13 +21,7 @@ public class TaskController {
             @RequestHeader ("Authorization") String authorization,
             @RequestBody TaskRequest request,
             @PathVariable Long projectId) {
-        String token = authorization.replace("Bearer ", "");
-
-        if (!jwtUtil.validateToken(token)) {
-            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
-        }
-
-        Long userId = jwtUtil.getUserId(token);
+        Long userId = authService.getUserIdFromAuthorization(authorization);
 
         return taskService.createTask(userId, projectId, request);
     }
@@ -40,13 +32,7 @@ public class TaskController {
             @RequestHeader ("Authorization") String authorization,
             @PathVariable Long projectId
     ) {
-        String token = authorization.replace("Bearer ", "");
-
-        if (!jwtUtil.validateToken(token)) {
-            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
-        }
-
-        Long userId = jwtUtil.getUserId(token);
+        Long userId = authService.getUserIdFromAuthorization(authorization);
 
         return taskService.getTasks(userId, projectId);
     }
@@ -58,13 +44,7 @@ public class TaskController {
             @PathVariable Long taskId,
             @PathVariable Long projectId
     ) {
-        String token = authorization.replace("Bearer ", "");
-
-        if (!jwtUtil.validateToken(token)) {
-            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
-        }
-
-        Long userId = jwtUtil.getUserId(token);
+        Long userId = authService.getUserIdFromAuthorization(authorization);
 
         return taskService.getTask(userId, projectId, taskId);
     }
@@ -77,13 +57,7 @@ public class TaskController {
             @PathVariable Long projectId,
             @RequestBody TaskRequest request
     ) {
-        String token = authorization.replace("Bearer ", "");
-
-        if (!jwtUtil.validateToken(token)) {
-            throw new IllegalArgumentException("유효하지 않은 토큰입니다.");
-        }
-
-        Long userId = jwtUtil.getUserId(token);
+        Long userId = authService.getUserIdFromAuthorization(authorization);
 
         return taskService.updateTask(userId, projectId, taskId, request);
     }
@@ -95,13 +69,7 @@ public class TaskController {
             @PathVariable Long taskId,
             @PathVariable Long projectId
     ) {
-        String token = authorization.replace("Bearer ", "");
-
-        if (!jwtUtil.validateToken(token)) {
-            throw new IllegalArgumentException("토큰이 유효하지 않습니다.");
-        }
-
-        Long userId = jwtUtil.getUserId(token);
+        Long userId = authService.getUserIdFromAuthorization(authorization);
 
         taskService.deleteTask(userId, projectId, taskId);
 
