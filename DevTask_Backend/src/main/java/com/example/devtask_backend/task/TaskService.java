@@ -28,6 +28,10 @@ public class TaskService {
             throw new ForbiddenException("권한이 없습니다.");
         }
 
+        if (request.getTitle() == null || request.getTitle().isBlank()) {
+            throw new IllegalArgumentException("Task title은 필수입니다.");
+        }
+
         String title = request.getTitle();
         String description = request.getDescription();
         TaskPriority priority = request.getPriority();
@@ -72,7 +76,7 @@ public class TaskService {
 //    Task 단건 조회 메서드
     public TaskResponse getTask(Long userId, Long projectId, Long taskId) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new IllegalArgumentException("Task를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException("Task를 찾을 수 없습니다."));
 
         if (!Objects.equals(task.getProject().getId(), projectId)) {
             throw new IllegalArgumentException("잘못된 프로젝트의 Task입니다.");
@@ -103,6 +107,10 @@ public class TaskService {
 
         if (!Objects.equals(task.getProject().getUser().getId(), userId)) {
             throw new ForbiddenException("권한이 없습니다.");
+        }
+
+        if (request.getTitle() == null || request.getTitle().isBlank()) {
+            throw new IllegalArgumentException("Task title은 필수입니다.");
         }
 
         String title = request.getTitle();

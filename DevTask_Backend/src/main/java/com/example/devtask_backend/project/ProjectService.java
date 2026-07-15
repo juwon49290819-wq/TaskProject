@@ -24,6 +24,10 @@ public class ProjectService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("사용자를 찾을 수 없습니다."));
 
+        if (request.getTitle() == null || request.getTitle().isBlank()) {
+            throw new IllegalArgumentException("Project title은 필수입니다.");
+        }
+
         String title = request.getTitle();
         String description = request.getDescription();
 
@@ -74,6 +78,10 @@ public class ProjectService {
 
         if (!Objects.equals(project.getUser().getId(), userId)) {
             throw new ForbiddenException("권한이 없습니다.");
+        }
+
+        if (request.getTitle() == null || request.getTitle().isBlank()) {
+            throw new IllegalArgumentException("Project title은 필수입니다.");
         }
 
         String title = request.getTitle();
