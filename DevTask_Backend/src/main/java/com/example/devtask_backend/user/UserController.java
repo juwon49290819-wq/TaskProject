@@ -11,12 +11,10 @@ public class UserController {
 
     private final UserService userService;
     private final AuthService authService;
-    private final JwtUtil jwtUtil;
 
     public UserController(UserService userService, AuthService authService, JwtUtil jwtUtil) {
         this.userService = userService;
         this.authService = authService;
-        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/signup")

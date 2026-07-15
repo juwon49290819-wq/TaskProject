@@ -1,26 +1,39 @@
 package com.example.devtask_backend.user;
 
 import com.example.devtask_backend.common.NotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public UserResponse signup(SignupRequest request) {
         String username = request.getUsername();
         String password = request.getPassword();
 
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("username은 필수입니다.");
+        }
+
+        if (password == null || password.isBlank()) {
+            throw new IllegalArgumentException("password는 필수입니다");
+        }
+
         if (userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("이미 존재하는 username입니다.");
         }
 
-        User user = new User(username, password);
+        String encodedPassword = passwordEncoder.encode(password);
+
+        User user = new User(username, encodedPassword);
 
         User savedUser = userRepository.save(user);
 
