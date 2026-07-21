@@ -138,6 +138,60 @@ public class TaskService {
         );
     }
 
+//    Task 완료 처리 메서드
+    public TaskResponse done(Long userId,Long projectId, Long taskId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new NotFoundException("Task를 찾을 수 없습니다."));
+
+        if (!Objects.equals(task.getProject().getId(), projectId)) {
+            throw new IllegalArgumentException("잘못된 프로젝트의 Task입니다.");
+        }
+
+        if (!Objects.equals(task.getProject().getUser().getId(), userId)) {
+            throw new ForbiddenException("권한이 없습니다.");
+        }
+
+        task.done();
+
+        Task savedTask = taskRepository.save(task);
+
+        return new TaskResponse(
+                savedTask.getId(),
+                savedTask.getTitle(),
+                savedTask.getDescription(),
+                savedTask.getStatus(),
+                savedTask.getPriority(),
+                savedTask.getProject().getId()
+        );
+    }
+
+    //    Task 다시 열기 메서드
+    public TaskResponse reopen(Long userId,Long projectId, Long taskId) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new NotFoundException("Task를 찾을 수 없습니다."));
+
+        if (!Objects.equals(task.getProject().getId(), projectId)) {
+            throw new IllegalArgumentException("잘못된 프로젝트의 Task입니다.");
+        }
+
+        if (!Objects.equals(task.getProject().getUser().getId(), userId)) {
+            throw new ForbiddenException("권한이 없습니다.");
+        }
+
+        task.reopen();
+
+        Task savedTask = taskRepository.save(task);
+
+        return new TaskResponse(
+                savedTask.getId(),
+                savedTask.getTitle(),
+                savedTask.getDescription(),
+                savedTask.getStatus(),
+                savedTask.getPriority(),
+                savedTask.getProject().getId()
+        );
+    }
+
 //    Task 삭제 메서드
     public void deleteTask(Long userId, Long projectId, Long taskId) {
         Task task = taskRepository.findById(taskId)

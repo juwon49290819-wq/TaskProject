@@ -46,6 +46,14 @@ public class Task {
         this.priority = priority;
     }
 
+    public void done() {
+        this.status = TaskStatus.DONE;
+    }
+
+    public void reopen() {
+        this.status = TaskStatus.TODO;
+    }
+
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();

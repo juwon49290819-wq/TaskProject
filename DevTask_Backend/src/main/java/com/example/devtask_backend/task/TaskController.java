@@ -65,6 +65,30 @@ public class TaskController {
         return taskService.updateTask(userId, projectId, taskId, request);
     }
 
+    //    Task 완료 처리
+    @PatchMapping("/{taskId}/done")
+    public TaskResponse done(
+            @RequestHeader ("Authorization") String authorization,
+            @PathVariable Long taskId,
+            @PathVariable Long projectId
+    ) {
+        Long userId = authService.getUserIdFromAuthorization(authorization);
+
+        return taskService.done(userId, projectId, taskId);
+    }
+
+    //    Task 다시 열기 처리
+    @PatchMapping("/{taskId}/reopen")
+    public TaskResponse reopen(
+            @RequestHeader ("Authorization") String authorization,
+            @PathVariable Long taskId,
+            @PathVariable Long projectId
+    ) {
+        Long userId = authService.getUserIdFromAuthorization(authorization);
+
+        return taskService.reopen(userId, projectId, taskId);
+    }
+
 //    Task 삭제
     @DeleteMapping("/{taskId}")
     public String deleteTask(
