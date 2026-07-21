@@ -51,7 +51,13 @@ public class TaskService {
     }
 
 //    Task 조회 메서드
-    public List<TaskResponse> getTasks(Long userId, Long projectId, TaskStatus status, TaskPriority priority) {
+    public List<TaskResponse> getTasks(
+            Long userId,
+            Long projectId,
+            TaskStatus status,
+            TaskPriority priority,
+            String keyword
+    ) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundException("프로젝트를 찾을 수 없습니다."));
 
@@ -61,7 +67,9 @@ public class TaskService {
 
         List<Task> tasks;
 
-        if (status != null && priority != null) {
+        if (keyword != null && !keyword.isBlank()){
+            tasks = taskRepository.searchByKeyword(projectId, keyword);
+        } else if (status != null && priority != null) {
             tasks = taskRepository.findByProjectIdAndStatusAndPriorityOrderByCreatedAtDesc(projectId, status, priority);
         } else if (status != null) {
             tasks = taskRepository.findByProjectIdAndStatusOrderByCreatedAtDesc(projectId, status);

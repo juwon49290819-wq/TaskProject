@@ -32,11 +32,12 @@ public class TaskController {
             @RequestHeader ("Authorization") String authorization,
             @PathVariable Long projectId,
             @RequestParam(required = false) TaskPriority priority,
-            @RequestParam(required = false) TaskStatus status
+            @RequestParam(required = false) TaskStatus status,
+            @RequestParam(required = false) String keyword
     ) {
         Long userId = authService.getUserIdFromAuthorization(authorization);
 
-        return taskService.getTasks(userId, projectId, status, priority);
+        return taskService.getTasks(userId, projectId, status, priority, keyword);
     }
 
 //    Task 단건 조회
