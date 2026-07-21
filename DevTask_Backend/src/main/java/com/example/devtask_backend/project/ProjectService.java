@@ -44,7 +44,7 @@ public class ProjectService {
 
 //    프로젝트 조회
     public List<ProjectResponse> getMyProjects(Long userId) {
-        List<Project> projects = projectRepository.findByUserId(userId);
+        List<Project> projects = projectRepository.findByUserIdOrderByCreatedAtDesc(userId);
         return projects.stream()
                 .map(project -> new ProjectResponse(
                         project.getId(),

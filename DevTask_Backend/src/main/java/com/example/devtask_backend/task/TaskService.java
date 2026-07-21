@@ -51,7 +51,7 @@ public class TaskService {
     }
 
 //    Task 조회 메서드
-    public List<TaskResponse> getTasks(Long userId, Long projectId) {
+    public List<TaskResponse> getTasks(Long userId, Long projectId, TaskStatus status, TaskPriority priority) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundException("프로젝트를 찾을 수 없습니다."));
 
@@ -59,7 +59,17 @@ public class TaskService {
             throw new ForbiddenException("권한이 없습니다.");
         }
 
-        List<Task> tasks = taskRepository.findByProjectId(projectId);
+        List<Task> tasks;
+
+        if (status != null && priority != null) {
+            tasks = taskRepository.findByProjectIdAndStatusAndPriorityOrderByCreatedAtDesc(projectId, status, priority);
+        } else if (status != null) {
+            tasks = taskRepository.findByProjectIdAndStatusOrderByCreatedAtDesc(projectId, status);
+        } else if (priority != null) {
+            tasks = taskRepository.findByProjectIdAndPriorityOrderByCreatedAtDesc(projectId, priority);
+        } else {
+            tasks = taskRepository.findByProjectIdOrderByCreatedAtDesc(projectId);
+        }
 
         return tasks.stream()
                 .map(task -> new TaskResponse(
