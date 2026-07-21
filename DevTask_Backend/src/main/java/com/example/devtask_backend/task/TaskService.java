@@ -83,6 +83,38 @@ public class TaskService {
                 .toList();
     }
 
+//    오늘까지 Task 조회 메서드
+    public List<TaskResponse> getTodayTasks(
+            Long userId,
+            Long projectId
+    ) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new NotFoundException("프로젝트를 찾을 수 없습니다."));
+
+        if (!Objects.equals(project.getUser().getId(), userId)) {
+            throw new ForbiddenException("권한이 없습니다.");
+        }
+        LocalDate today = LocalDate.now();
+
+        List<Task> tasks =
+                taskRepository.findByProjectIdAndDueDateLessThanEqualOrderByDueDateAsc(
+                        projectId,
+                        today
+                );
+
+        return tasks.stream()
+                .map(task -> new TaskResponse(
+                        task.getId(),
+                        task.getTitle(),
+                        task.getDescription(),
+                        task.getStatus(),
+                        task.getPriority(),
+                        task.getProject().getId(),
+                        task.getDueDate()
+                ))
+                .toList();
+    }
+
 //    Task 단건 조회 메서드
     public TaskResponse getTask(Long userId, Long projectId, Long taskId) {
         Task task = taskRepository.findById(taskId)

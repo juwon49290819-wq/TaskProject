@@ -1,9 +1,11 @@
 package com.example.devtask_backend.task;
 
+import org.springframework.cglib.core.Local;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
@@ -19,7 +21,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             OR t.title LIKE concat('%', :keyword, '%')
             OR t.description LIKE concat('%', :keyword, '%')
             )     
-    ORDER BY t.createdAt DESC
+    ORDER BY t.dueDate ASC, t.createdAt DESC
     """)
         List<Task> searchTasks(
                 @Param("projectId") Long projectId,
@@ -29,4 +31,9 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     );
         long countByProjectId(Long projectId);
         long countByProjectIdAndStatus(Long projectId, TaskStatus status);
+
+        List<Task> findByProjectIdAndDueDateLessThanEqualOrderByDueDateAsc(
+                Long projectId,
+                LocalDate today
+        );
 }

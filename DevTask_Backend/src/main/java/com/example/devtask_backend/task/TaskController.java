@@ -40,6 +40,16 @@ public class TaskController {
         return taskService.getTasks(userId, projectId, status, priority, keyword);
     }
 
+//    오늘까지 Task 조회
+    @GetMapping("/today")
+    public List<TaskResponse> getTodayTasks(
+            @RequestHeader("Authorization") String authorization,
+            @PathVariable Long projectId
+    ) {
+        Long userId = authService.getUserIdFromAuthorization(authorization);
+        return taskService.getTodayTasks(userId, projectId);
+    }
+
 //    Task 단건 조회
     @GetMapping("/{taskId}")
     public TaskResponse getTask(
