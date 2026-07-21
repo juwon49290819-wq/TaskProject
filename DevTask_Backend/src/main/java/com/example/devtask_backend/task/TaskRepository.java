@@ -11,22 +11,20 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     SELECT t
     FROM Task t
     WHERE t.project.id = :projectId
-      AND (
-        t.title LIKE %:keyword%
-        OR t.description LIKE %:keyword%
-      )
+        AND (:status IS NULL OR t.status = :status)
+        AND (:priority IS NULL OR t.priority = :priority)   
+        AND (
+            :keyword IS NULL
+            OR :keyword = ''
+            OR t.title LIKE concat('%', :keyword, '%')
+            OR t.description LIKE concat('%', :keyword, '%')
+            )     
     ORDER BY t.createdAt DESC
-""")
-    List<Task> searchByKeyword(
-            @Param("projectId") Long projectId,
-            @Param("keyword") String keyword
-    );
-    List<Task> findByProjectIdOrderByCreatedAtDesc(Long projectId);
-    List<Task> findByProjectIdAndStatusOrderByCreatedAtDesc(Long projectId, TaskStatus status);
-    List<Task> findByProjectIdAndPriorityOrderByCreatedAtDesc(Long projectId, TaskPriority priority);
-    List<Task> findByProjectIdAndStatusAndPriorityOrderByCreatedAtDesc(
-            Long projectId,
-            TaskStatus status,
-            TaskPriority priority
+    """)
+        List<Task> searchTasks(
+                @Param("projectId") Long projectId,
+                @Param("keyword") String keyword,
+                @Param("status") TaskStatus status,
+                @Param("priority") TaskPriority priority
     );
 }

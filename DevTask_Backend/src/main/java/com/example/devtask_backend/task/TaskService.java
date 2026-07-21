@@ -65,19 +65,7 @@ public class TaskService {
             throw new ForbiddenException("권한이 없습니다.");
         }
 
-        List<Task> tasks;
-
-        if (keyword != null && !keyword.isBlank()){
-            tasks = taskRepository.searchByKeyword(projectId, keyword);
-        } else if (status != null && priority != null) {
-            tasks = taskRepository.findByProjectIdAndStatusAndPriorityOrderByCreatedAtDesc(projectId, status, priority);
-        } else if (status != null) {
-            tasks = taskRepository.findByProjectIdAndStatusOrderByCreatedAtDesc(projectId, status);
-        } else if (priority != null) {
-            tasks = taskRepository.findByProjectIdAndPriorityOrderByCreatedAtDesc(projectId, priority);
-        } else {
-            tasks = taskRepository.findByProjectIdOrderByCreatedAtDesc(projectId);
-        }
+        List<Task> tasks = taskRepository.searchTasks(projectId, keyword, status, priority);
 
         return tasks.stream()
                 .map(task -> new TaskResponse(
