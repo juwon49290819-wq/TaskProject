@@ -2,6 +2,8 @@ package com.example.devtask_backend.project;
 
 import com.example.devtask_backend.common.ForbiddenException;
 import com.example.devtask_backend.common.NotFoundException;
+import com.example.devtask_backend.task.TaskRepository;
+import com.example.devtask_backend.task.TaskStatus;
 import com.example.devtask_backend.user.User;
 import com.example.devtask_backend.user.UserRepository;
 import org.springframework.stereotype.Service;
@@ -13,10 +15,28 @@ import java.util.Objects;
 public class ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final TaskRepository taskRepository;
 
-    public ProjectService(ProjectRepository projectRepository, UserRepository userRepository) {
+    public ProjectService(
+            ProjectRepository projectRepository,
+            UserRepository userRepository,
+            TaskRepository taskRepository
+    ) {
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
+        this.taskRepository = taskRepository;
+    }
+
+//    완료율 계산 메서드
+    private int calculateProgress(Long projectId) {
+        long totalCount = taskRepository.countByProjectId(projectId);
+        long doneCount = taskRepository.countByProjectIdAndStatus(projectId, TaskStatus.DONE);
+
+        if (totalCount == 0) {
+            return 0;
+        }
+
+        return (int) ((doneCount * 100) / totalCount);
     }
 
 //    프로젝트 생성
@@ -39,19 +59,26 @@ public class ProjectService {
                 savedProject.getId(),
                 savedProject.getTitle(),
                 savedProject.getDescription(),
-                savedProject.getUser().getUsername());
+                savedProject.getUser().getUsername(),
+                0
+        );
     }
 
 //    프로젝트 조회
     public List<ProjectResponse> getMyProjects(Long userId) {
         List<Project> projects = projectRepository.findByUserIdOrderByCreatedAtDesc(userId);
         return projects.stream()
-                .map(project -> new ProjectResponse(
-                        project.getId(),
-                        project.getTitle(),
-                        project.getDescription(),
-                        project.getUser().getUsername()
-                ))
+                .map(project -> {
+                    int progress = calculateProgress(project.getId());
+
+                    return new ProjectResponse(
+                            project.getId(),
+                            project.getTitle(),
+                            project.getDescription(),
+                            project.getUser().getUsername(),
+                            progress
+                    );
+                })
                 .toList();
     }
 
@@ -64,11 +91,15 @@ public class ProjectService {
             throw new ForbiddenException("권한이 없습니다.");
         }
 
+        int progress = calculateProgress(project.getId());
+
         return new ProjectResponse(
                 project.getId(),
                 project.getTitle(),
                 project.getDescription(),
-                project.getUser().getUsername());
+                project.getUser().getUsername(),
+                progress
+        );
     }
 
 //    프로젝트 수정
@@ -91,11 +122,15 @@ public class ProjectService {
 
         Project projectSave = projectRepository.save(project);
 
+        int progress = calculateProgress(project.getId());
+
         return new ProjectResponse(
                 projectSave.getId(),
                 projectSave.getTitle(),
                 projectSave.getDescription(),
-                projectSave.getUser().getUsername());
+                projectSave.getUser().getUsername(),
+                progress
+        );
     }
 
 //    프로젝트 삭제

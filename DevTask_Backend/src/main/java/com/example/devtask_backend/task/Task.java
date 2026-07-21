@@ -3,6 +3,7 @@ package com.example.devtask_backend.task;
 import com.example.devtask_backend.project.Project;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -29,21 +30,37 @@ public class Task {
 
     private LocalDateTime updatedAt;
 
+    private LocalDate dueDate;
+
     protected Task() {}
 
-    public Task(String title, String description, TaskPriority priority, Project project) {
+    public Task(
+            String title,
+            String description,
+            TaskPriority priority,
+            Project project,
+            LocalDate dueDate
+    ) {
         this.title = title;
         this.description = description;
         this.status = TaskStatus.TODO;
         this.priority = priority;
         this.project = project;
+        this.dueDate = dueDate;
     }
 
-    public void update(String title, String description, TaskStatus status, TaskPriority priority) {
+    public void update(
+            String title,
+            String description,
+            TaskStatus status,
+            TaskPriority priority,
+            LocalDate dueDate
+    ) {
         this.title = title;
         this.description = description;
         this.status = status;
         this.priority = priority;
+        this.dueDate = dueDate;
     }
 
     public void done() {
@@ -95,5 +112,9 @@ public class Task {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
     }
 }

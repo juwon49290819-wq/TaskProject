@@ -5,6 +5,7 @@ import com.example.devtask_backend.project.Project;
 import com.example.devtask_backend.project.ProjectRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
@@ -35,8 +36,9 @@ public class TaskService {
         String title = request.getTitle();
         String description = request.getDescription();
         TaskPriority priority = request.getPriority();
+        LocalDate dueDate = request.getDueDate();
 
-        Task task = new Task(title, description, priority, project);
+        Task task = new Task(title, description, priority, project, dueDate);
 
         Task savedTask = taskRepository.save(task);
 
@@ -46,7 +48,8 @@ public class TaskService {
                 savedTask.getDescription(),
                 savedTask.getStatus(),
                 savedTask.getPriority(),
-                savedTask.getProject().getId()
+                savedTask.getProject().getId(),
+                savedTask.getDueDate()
         );
     }
 
@@ -74,7 +77,8 @@ public class TaskService {
                         task.getDescription(),
                         task.getStatus(),
                         task.getPriority(),
-                        task.getProject().getId()
+                        task.getProject().getId(),
+                        task.getDueDate()
                 ))
                 .toList();
     }
@@ -98,7 +102,8 @@ public class TaskService {
                 task.getDescription(),
                 task.getStatus(),
                 task.getPriority(),
-                task.getProject().getId()
+                task.getProject().getId(),
+                task.getDueDate()
         );
     }
 
@@ -123,8 +128,9 @@ public class TaskService {
         String description = request.getDescription();
         TaskPriority priority = request.getPriority();
         TaskStatus status = request.getStatus();
+        LocalDate dueDate = request.getDueDate();
 
-        task.update(title, description, status, priority);
+        task.update(title, description, status, priority, dueDate);
 
         Task savedTask = taskRepository.save(task);
 
@@ -134,7 +140,8 @@ public class TaskService {
                 savedTask.getDescription(),
                 savedTask.getStatus(),
                 savedTask.getPriority(),
-                savedTask.getProject().getId()
+                savedTask.getProject().getId(),
+                savedTask.getDueDate()
         );
     }
 
@@ -161,7 +168,8 @@ public class TaskService {
                 savedTask.getDescription(),
                 savedTask.getStatus(),
                 savedTask.getPriority(),
-                savedTask.getProject().getId()
+                savedTask.getProject().getId(),
+                savedTask.getDueDate()
         );
     }
 
@@ -188,7 +196,8 @@ public class TaskService {
                 savedTask.getDescription(),
                 savedTask.getStatus(),
                 savedTask.getPriority(),
-                savedTask.getProject().getId()
+                savedTask.getProject().getId(),
+                savedTask.getDueDate()
         );
     }
 

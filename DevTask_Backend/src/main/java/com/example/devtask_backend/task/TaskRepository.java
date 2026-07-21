@@ -27,4 +27,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
                 @Param("status") TaskStatus status,
                 @Param("priority") TaskPriority priority
     );
+        long countByProjectId(Long projectId);
+        long countByProjectIdAndStatus(Long projectId, TaskStatus status);
 }

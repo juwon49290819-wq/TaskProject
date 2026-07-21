@@ -5,12 +5,20 @@ public class ProjectResponse {
     private String title;
     private String description;
     private String username;
+    private long progress;
 
-    public ProjectResponse(Long id, String title, String description, String username) {
+    public ProjectResponse(
+            Long id,
+            String title,
+            String description,
+            String username,
+            long progress
+    ) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.username = username;
+        this.progress = progress;
     }
 
     public Long getId() {
@@ -27,5 +35,9 @@ public class ProjectResponse {
 
     public String getUsername() {
         return username;
+    }
+
+    public long getProgress() {
+        return progress;
     }
 }

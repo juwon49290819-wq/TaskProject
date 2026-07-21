@@ -1,5 +1,7 @@
 package com.example.devtask_backend.task;
 
+import java.time.LocalDate;
+
 public class TaskResponse {
     private Long id;
     private String title;
@@ -7,6 +9,7 @@ public class TaskResponse {
     private TaskStatus status;
     private TaskPriority priority;
     private Long projectId;
+    private LocalDate dueDate;
 
     public TaskResponse(
             Long id,
@@ -14,13 +17,16 @@ public class TaskResponse {
             String description,
             TaskStatus status,
             TaskPriority priority,
-            Long projectId) {
+            Long projectId,
+            LocalDate dueDate
+            ) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.status = status;
         this.priority = priority;
         this.projectId = projectId;
+        this.dueDate = dueDate;
     }
 
     public Long getId() {
@@ -45,5 +51,9 @@ public class TaskResponse {
 
     public Long getProjectId() {
         return projectId;
+    }
+
+    public LocalDate getDueDate() {
+        return dueDate;
     }
 }
