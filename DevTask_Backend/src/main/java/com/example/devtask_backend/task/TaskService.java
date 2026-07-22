@@ -20,14 +20,43 @@ public class TaskService {
         this.projectRepository = projectRepository;
     }
 
-//    Task 생성 메서드
-    public TaskResponse createTask(Long userId, Long projectId, TaskRequest request) {
+    private TaskResponse toResponse(Task task) {
+        return new TaskResponse(
+                task.getId(),
+                task.getTitle(),
+                task.getDescription(),
+                task.getStatus(),
+                task.getPriority(),
+                task.getProject().getId(),
+                task.getDueDate()
+        );
+    }
+
+    private void validateTaskAccess(Task task, Long userId, Long projectId) {
+        if (!Objects.equals(task.getProject().getId(), projectId)) {
+            throw new IllegalArgumentException("잘못된 프로젝트의 Task입니다.");
+        }
+
+        if (!Objects.equals(task.getProject().getUser().getId(), userId)) {
+            throw new ForbiddenException("권한이 없습니다.");
+        }
+    }
+
+    private Project getProjectAndValidateAccess(Long projectId, Long userId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundException("프로젝트를 찾을 수 없습니다."));
 
         if (!Objects.equals(project.getUser().getId(), userId)) {
             throw new ForbiddenException("권한이 없습니다.");
         }
+
+        return project;
+    }
+
+//    Task 생성 메서드
+    public TaskResponse createTask(Long userId, Long projectId, TaskRequest request) {
+
+        Project project = getProjectAndValidateAccess(projectId, userId);
 
         if (request.getTitle() == null || request.getTitle().isBlank()) {
             throw new IllegalArgumentException("Task title은 필수입니다.");
@@ -42,15 +71,7 @@ public class TaskService {
 
         Task savedTask = taskRepository.save(task);
 
-        return new TaskResponse(
-                savedTask.getId(),
-                savedTask.getTitle(),
-                savedTask.getDescription(),
-                savedTask.getStatus(),
-                savedTask.getPriority(),
-                savedTask.getProject().getId(),
-                savedTask.getDueDate()
-        );
+        return toResponse(savedTask);
     }
 
 //    Task 조회 메서드
@@ -61,25 +82,12 @@ public class TaskService {
             TaskPriority priority,
             String keyword
     ) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new NotFoundException("프로젝트를 찾을 수 없습니다."));
-
-        if (!Objects.equals(project.getUser().getId(), userId)) {
-            throw new ForbiddenException("권한이 없습니다.");
-        }
+        getProjectAndValidateAccess(projectId, userId);
 
         List<Task> tasks = taskRepository.searchTasks(projectId, keyword, status, priority);
 
         return tasks.stream()
-                .map(task -> new TaskResponse(
-                        task.getId(),
-                        task.getTitle(),
-                        task.getDescription(),
-                        task.getStatus(),
-                        task.getPriority(),
-                        task.getProject().getId(),
-                        task.getDueDate()
-                ))
+                .map(this::toResponse)
                 .toList();
     }
 
@@ -88,30 +96,19 @@ public class TaskService {
             Long userId,
             Long projectId
     ) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new NotFoundException("프로젝트를 찾을 수 없습니다."));
+        getProjectAndValidateAccess(projectId, userId);
 
-        if (!Objects.equals(project.getUser().getId(), userId)) {
-            throw new ForbiddenException("권한이 없습니다.");
-        }
         LocalDate today = LocalDate.now();
 
         List<Task> tasks =
-                taskRepository.findByProjectIdAndDueDateLessThanEqualOrderByDueDateAsc(
+                taskRepository.findByProjectIdAndDueDateLessThanEqualAndStatusNotOrderByDueDateAsc(
                         projectId,
-                        today
+                        today,
+                        TaskStatus.DONE
                 );
 
         return tasks.stream()
-                .map(task -> new TaskResponse(
-                        task.getId(),
-                        task.getTitle(),
-                        task.getDescription(),
-                        task.getStatus(),
-                        task.getPriority(),
-                        task.getProject().getId(),
-                        task.getDueDate()
-                ))
+                .map(this::toResponse)
                 .toList();
     }
 
@@ -120,23 +117,9 @@ public class TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new NotFoundException("Task를 찾을 수 없습니다."));
 
-        if (!Objects.equals(task.getProject().getId(), projectId)) {
-            throw new IllegalArgumentException("잘못된 프로젝트의 Task입니다.");
-        }
+        validateTaskAccess(task, userId, projectId);
 
-        if (!Objects.equals(task.getProject().getUser().getId(), userId)) {
-            throw new ForbiddenException("권한이 없습니다.");
-        }
-
-        return new TaskResponse(
-                task.getId(),
-                task.getTitle(),
-                task.getDescription(),
-                task.getStatus(),
-                task.getPriority(),
-                task.getProject().getId(),
-                task.getDueDate()
-        );
+        return toResponse(task);
     }
 
 //    Task 수정 메서드
@@ -144,13 +127,7 @@ public class TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new NotFoundException("Task를 찾을 수 없습니다."));
 
-        if (!Objects.equals(task.getProject().getId(), projectId)) {
-            throw new IllegalArgumentException("잘못된 프로젝트의 Task입니다.");
-        }
-
-        if (!Objects.equals(task.getProject().getUser().getId(), userId)) {
-            throw new ForbiddenException("권한이 없습니다.");
-        }
+        validateTaskAccess(task, userId, projectId);
 
         if (request.getTitle() == null || request.getTitle().isBlank()) {
             throw new IllegalArgumentException("Task title은 필수입니다.");
@@ -166,15 +143,7 @@ public class TaskService {
 
         Task savedTask = taskRepository.save(task);
 
-        return new TaskResponse(
-                savedTask.getId(),
-                savedTask.getTitle(),
-                savedTask.getDescription(),
-                savedTask.getStatus(),
-                savedTask.getPriority(),
-                savedTask.getProject().getId(),
-                savedTask.getDueDate()
-        );
+        return toResponse(savedTask);
     }
 
 //    Task 완료 처리 메서드
@@ -182,27 +151,13 @@ public class TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new NotFoundException("Task를 찾을 수 없습니다."));
 
-        if (!Objects.equals(task.getProject().getId(), projectId)) {
-            throw new IllegalArgumentException("잘못된 프로젝트의 Task입니다.");
-        }
-
-        if (!Objects.equals(task.getProject().getUser().getId(), userId)) {
-            throw new ForbiddenException("권한이 없습니다.");
-        }
+        validateTaskAccess(task, userId, projectId);
 
         task.done();
 
         Task savedTask = taskRepository.save(task);
 
-        return new TaskResponse(
-                savedTask.getId(),
-                savedTask.getTitle(),
-                savedTask.getDescription(),
-                savedTask.getStatus(),
-                savedTask.getPriority(),
-                savedTask.getProject().getId(),
-                savedTask.getDueDate()
-        );
+        return toResponse(savedTask);
     }
 
     //    Task 다시 열기 메서드
@@ -210,27 +165,13 @@ public class TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new NotFoundException("Task를 찾을 수 없습니다."));
 
-        if (!Objects.equals(task.getProject().getId(), projectId)) {
-            throw new IllegalArgumentException("잘못된 프로젝트의 Task입니다.");
-        }
-
-        if (!Objects.equals(task.getProject().getUser().getId(), userId)) {
-            throw new ForbiddenException("권한이 없습니다.");
-        }
+        validateTaskAccess(task, userId, projectId);
 
         task.reopen();
 
         Task savedTask = taskRepository.save(task);
 
-        return new TaskResponse(
-                savedTask.getId(),
-                savedTask.getTitle(),
-                savedTask.getDescription(),
-                savedTask.getStatus(),
-                savedTask.getPriority(),
-                savedTask.getProject().getId(),
-                savedTask.getDueDate()
-        );
+        return toResponse(savedTask);
     }
 
 //    Task 삭제 메서드
@@ -238,13 +179,7 @@ public class TaskService {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> new NotFoundException("Task를 찾을 수 없습니다."));
 
-        if (!Objects.equals(task.getProject().getId(), projectId)) {
-            throw new IllegalArgumentException("잘못된 프로젝트의 Task입니다.");
-        }
-
-        if (!Objects.equals(task.getProject().getUser().getId(), userId)) {
-            throw new ForbiddenException("권한이 없습니다.");
-        }
+        validateTaskAccess(task, userId, projectId);
 
         taskRepository.delete(task);
     }

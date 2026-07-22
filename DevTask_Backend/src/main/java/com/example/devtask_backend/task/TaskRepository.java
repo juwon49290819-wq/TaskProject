@@ -1,6 +1,5 @@
 package com.example.devtask_backend.task;
 
-import org.springframework.cglib.core.Local;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -32,8 +31,9 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
         long countByProjectId(Long projectId);
         long countByProjectIdAndStatus(Long projectId, TaskStatus status);
 
-        List<Task> findByProjectIdAndDueDateLessThanEqualOrderByDueDateAsc(
-                Long projectId,
-                LocalDate today
-        );
+    List<Task> findByProjectIdAndDueDateLessThanEqualAndStatusNotOrderByDueDateAsc(
+            Long projectId,
+            LocalDate today,
+            TaskStatus status
+    );
 }
